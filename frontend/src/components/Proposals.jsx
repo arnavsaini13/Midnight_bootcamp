@@ -10,7 +10,8 @@ function Proposals({ walletConnected }) {
   const [formData, setFormData] = useState({
     recipient: '',
     amount: '',
-    duration: 7
+    duration: 7,
+    description: ''
   });
 
   useEffect(() => {
@@ -37,7 +38,7 @@ function Proposals({ walletConnected }) {
 
     try {
       await proposalAPI.create(formData);
-      setFormData({ recipient: '', amount: '', duration: 7 });
+      setFormData({ recipient: '', amount: '', duration: 7, description: '' });
       setShowCreateForm(false);
       loadProposals();
     } catch (error) {
@@ -129,10 +130,17 @@ function Proposals({ walletConnected }) {
             <input
               className="input"
               type="number"
-              placeholder="Amount (in DUST)"
+              placeholder="Amount (in micro-NIGHT, e.g. 5000000 = 5 NIGHT)"
               value={formData.amount}
               onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
               required
+            />
+            <textarea
+              className="input textarea"
+              placeholder="Proposal description: explain purpose and recipient use of funds"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows={4}
             />
             <input
               className="input"
@@ -142,6 +150,13 @@ function Proposals({ walletConnected }) {
               onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
               required
             />
+            {/* Live preview */}
+            {formData.description && (
+              <div className="card" style={{ background: 'var(--card-variant)', marginTop: 8 }}>
+                <strong>Preview</strong>
+                <p style={{ marginTop: 8, color: 'var(--text)' }}>{formData.description}</p>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '12px' }}>
               <button type="submit" className="btn btn-primary">Create Proposal</button>
               <button 
@@ -176,8 +191,15 @@ function Proposals({ walletConnected }) {
 
             <div className="proposal-details">
               <p><strong>Recipient:</strong> {proposal.recipient}</p>
+              <p><strong>Amount:</strong> {Number(proposal.amount) / 1_000_000} NIGHT</p>
               <p><strong>Duration:</strong> {proposal.duration} days</p>
               <p><strong>Created:</strong> {new Date(proposal.createdAt).toLocaleString()}</p>
+              {proposal.description && (
+                <div style={{ marginTop: 8 }}>
+                  <p style={{ margin: 0 }}><strong>Description:</strong></p>
+                  <p style={{ marginTop: 6 }}>{proposal.description}</p>
+                </div>
+              )}
             </div>
 
             <div className="proposal-votes">

@@ -8,6 +8,15 @@
   color: var(--text-dim);
 }
 
+.input.textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.card[style] {
+  padding: 12px;
+}
+
 .stat-card {
   position: relative;
   overflow: hidden;
