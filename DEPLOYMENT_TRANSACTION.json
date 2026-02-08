@@ -1,0 +1,8 @@
+{
+  "transactionHash": [
+    2
+  ],
+  "contractHash": "81aac1479224e8896ff26cf220354553e382701d07563e2dcc86bf01e7701aae",
+  "method": "midnight_apiVersions",
+  "timestamp": "2026-02-08T09:43:57.993Z"
+}

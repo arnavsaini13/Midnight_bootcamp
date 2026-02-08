@@ -1,0 +1,159 @@
+// DAO Treasury with Voting - Refined for Compilation
+// Features: Member registration, proposal creation, voting, execution
+
+contract PrivateDAOTreasury {
+    #[state]
+    treasuryBalance: Field;
+    
+    #[state]
+    memberCount: Field;
+    
+    #[state]
+    proposalCount: Field;
+    
+    #[state]
+    currentProposalId: Field;
+    
+    #[state]
+    currentProposalRecipient: Address;
+    
+    #[state]
+    currentProposalAmount: Field;
+    
+    #[state]
+    currentProposalYesVotes: Field;
+    
+    #[state]
+    currentProposalNoVotes: Field;
+    
+    #[state]
+    currentProposalActive: Bool;
+    
+    #[state]
+    quorumThreshold: Field;
+    
+    #[state]
+    minimumProposerWeight: Field;
+    
+    #[state]
+    executionDelay: Field;
+    
+    #[state]
+    proposalCreationTime: Field;
+    
+    #[init]
+    constructor(initialBalance: Field, quorum: Field, minWeight: Field, delay: Field) {
+        treasuryBalance = initialBalance;
+        memberCount = 0;
+        proposalCount = 0;
+        currentProposalId = 0;
+        currentProposalActive = false;
+        quorumThreshold = quorum;
+        minimumProposerWeight = minWeight;
+        executionDelay = delay;
+        currentProposalYesVotes = 0;
+        currentProposalNoVotes = 0;
+        proposalCreationTime = 0;
+    }
+    
+    // Treasury Management
+    pub fn deposit(amount: Field) {
+        treasuryBalance = treasuryBalance + amount;
+    }
+    
+    pub fn getTreasuryBalance() -> Field {
+        treasuryBalance
+    }
+    
+    // Member Management
+    pub fn registerMember() {
+        memberCount = memberCount + 1;
+    }
+    
+    pub fn getMemberCount() -> Field {
+        memberCount
+    }
+    
+    // Proposal Creation
+    pub fn createProposal(recipient: Address, amount: Field, timestamp: Field) {
+        assert!(!currentProposalActive, "Proposal already active");
+        assert!(amount <= treasuryBalance, "Insufficient treasury balance");
+        assert!(memberCount >= minimumProposerWeight, "Not enough members");
+        
+        proposalCount = proposalCount + 1;
+        currentProposalId = proposalCount;
+        currentProposalRecipient = recipient;
+        currentProposalAmount = amount;
+        currentProposalActive = true;
+        currentProposalYesVotes = 0;
+        currentProposalNoVotes = 0;
+        proposalCreationTime = timestamp;
+    }
+    
+    pub fn cancelProposal() {
+        assert!(currentProposalActive, "No active proposal");
+        currentProposalActive = false;
+    }
+    
+    // Voting (with private vote values)
+    #[zk_on_secret_input(secret voteValue)]
+    pub fn castVote(voteValue: Field) {
+        assert!(currentProposalActive, "No active proposal");
+        
+        if (voteValue > 0) {
+            currentProposalYesVotes = currentProposalYesVotes + 1;
+        } else {
+            currentProposalNoVotes = currentProposalNoVotes + 1;
+        }
+    }
+    
+    // Finalization
+    pub fn finalizeProposal() -> Bool {
+        assert!(currentProposalActive, "No active proposal");
+        
+        let totalVotes = currentProposalYesVotes + currentProposalNoVotes;
+        assert!(totalVotes >= quorumThreshold, "Quorum not met");
+        
+        let passed = currentProposalYesVotes > currentProposalNoVotes;
+        
+        if (!passed) {
+            currentProposalActive = false;
+        }
+        
+        passed
+    }
+    
+    // Execution (with timelock)
+    pub fn executeProposal(currentTime: Field) {
+        assert!(!currentProposalActive, "Proposal still active");
+        assert!(currentTime >= proposalCreationTime + executionDelay, "Timelock not expired");
+        
+        let amount = currentProposalAmount;
+        let recipient = currentProposalRecipient;
+        
+        assert!(amount <= treasuryBalance, "Insufficient balance");
+        
+        treasuryBalance = treasuryBalance - amount;
+        transfer(recipient, amount);
+        
+        // Reset proposal state
+        currentProposalId = 0;
+        currentProposalAmount = 0;
+        currentProposalYesVotes = 0;
+        currentProposalNoVotes = 0;
+        proposalCreationTime = 0;
+    }
+    
+    // Query Functions
+    pub fn getCurrentProposal() -> (Field, Address, Field, Bool) {
+        (currentProposalId, currentProposalRecipient, currentProposalAmount, currentProposalActive)
+    }
+    
+    pub fn getVoteCount() -> (Field, Field) {
+        (currentProposalYesVotes, currentProposalNoVotes)
+    }
+    
+    pub fn getProposalCount() -> Field {
+        proposalCount
+    }
+}

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrivateDAO API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+        button {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #7c3aed;
+        }
+        .result {
+            background: #1e293b;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #334155;
+        }
+        .success {
+            color: #10b981;
+        }
+        .error {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 PrivateDAO API Test</h1>
+    <p>Test all backend endpoints and button functionality</p>
+
+    <h2>Contract Endpoints</h2>
+    <button onclick="testContractInfo()">Test Contract Info</button>
+    <button onclick="testBalance()">Test Balance</button>
+    <button onclick="testQuorum()">Test Quorum</button>
+
+    <h2>Proposal Endpoints</h2>
+    <button onclick="testGetProposals()">Get Proposals</button>
+    <button onclick="testCreateProposal()">Create Proposal</button>
+    <button onclick="testVote()">Vote on Proposal</button>
+    <button onclick="testExecute()">Execute Proposal</button>
+
+    <h2>Member Endpoints</h2>
+    <button onclick="testGetMembers()">Get Members</button>
+    <button onclick="testRegisterMember()">Register Member</button>
+
+    <div id="output" class="result"></div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        function displayResult(title, data, isError = false) {
+            const output = document.getElementById('output');
+            const className = isError ? 'error' : 'success';
+            output.innerHTML = `
+                <h3 class="${className}">${title}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+
+        async function testContractInfo() {
+            try {
+                const res = await fetch(`${API_URL}/contract/info`);
+                const data = await res.json();
+                displayResult('✅ Contract Info', data);
+            } catch (error) {
+                displayResult('❌ Error', error.message, true);
+            }
+        }
+
+        async function testBalance() {
+            try {
+                const res = await fetch(`${API_URL}/contract/balance`);
+                const data = await res.json();
+                displayResult('✅ Balance', data);
+            } catch (error) {
+                displayResult('❌ Error', error.message, true);
+            }
+        }
+
+        async function testQuorum() {
+            try {
+                const res = await fetch(`${API_URL}/contract/quorum`);
+                const data = await res.json();
+                displayResult('✅ Quorum', data);
+            } catch (error) {
+                displayResult('❌ Error', error.message, true);
+            }
+        }
+
+        async function testGetProposals() {
+            try {
+                const res = await fetch(`${API_URL}/proposals`);
+                const data = await res.json();
+                displayResult('✅ Proposals', data);
+            } catch (error) {
+                displayResult('❌ Error', error.message, true);
+            }
+        }
+
+        async function testCreateProposal() {
+            try {
+                const res = await fetch(`${API_URL}/proposals`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        recipient: 'mn_addr_test123...',
+                        amount: '1000000',
+                        duration: 7,
+                        description: 'Test proposal from API test'
+                    })
+                });
+                const data = await res.json();
+                displayResult('✅ Proposal Created', data);
+            } catch (error) {
+                displayResult('❌ Error', error.message, true);
+            }
+        }
+
+        async function testVote() {
+            try {
+                const res = await fetch(`${API_URL}/proposals/1/vote`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ vote: 'yes' })
+                });
+                const data = await res.json();
+                displayResult('✅ Vote Recorded', data);
+            } catch (error) {
+                displayResult('❌ Error', error.message, true);
+            }
+        }
+
+        async function testExecute() {
+            try {
+                const res = await fetch(`${API_URL}/proposals/1/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+                displayResult('✅ Proposal Executed', data);
+            } catch (error) {
+                displayResult('❌ Error', error.message, true);
+            }
+        }
+
+        async function testGetMembers() {
+            try {
+                const res = await fetch(`${API_URL}/members`);
+                const data = await res.json();
+                displayResult('✅ Members', data);
+            } catch (error) {
+                displayResult('❌ Error', error.message, true);
+            }
+        }
+
+        async function testRegisterMember() {
+            try {
+                const randomAddr = 'mn_addr_test' + Math.random().toString(36).substr(2, 9);
+                const res = await fetch(`${API_URL}/members/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        address: randomAddr,
+                        votingWeight: 50
+                    })
+                });
+                const data = await res.json();
+                displayResult('✅ Member Registered', data);
+            } catch (error) {
+                displayResult('❌ Error', error.message, true);
+            }
+        }
+
+        // Auto-test on load
+        window.onload = () => {
+            testContractInfo();
+        };
+    </script>
+</body>
+</html>

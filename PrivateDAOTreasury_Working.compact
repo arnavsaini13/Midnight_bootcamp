@@ -1,0 +1,197 @@
+pragma language_version >= 0.20;
+import CompactStandardLibrary;
+
+// Proposal structure
+export struct Proposal {
+  proposalId: Uint<128>;
+  recipient: Either<ZswapCoinPublicKey, ContractAddress>;
+  amount: Uint<128>;
+  deadline: Uint<64>;
+  isActive: Boolean;
+  yesVotes: Uint<128>;
+  noVotes: Uint<128>;
+}
+
+// State variables
+export ledger treasuryBalance: Uint<128>;
+export ledger proposals: Map<Uint<128>, Proposal>;
+export ledger nextProposalId: Uint<128>;
+export ledger memberWeights: Map<Either<ZswapCoinPublicKey, ContractAddress>, Uint<128>>;
+export ledger hasVoted: Map<Uint<128>, Map<Either<ZswapCoinPublicKey, ContractAddress>, Boolean>>;
+export ledger quorumThreshold: Uint<128>;
+
+// Constructor
+constructor(initialBalance: Uint<128>, quorum: Uint<128>) {
+  treasuryBalance = disclose(initialBalance);
+  nextProposalId = disclose(1);
+  quorumThreshold = disclose(quorum);
+}
+
+// Deposit funds
+export circuit deposit(amount: Uint<128>): [] {
+  treasuryBalance = disclose(treasuryBalance + amount as Uint<128>);
+}
+
+// Get balance
+export circuit getBalance(): Uint<128> {
+  return treasuryBalance;
+}
+
+// Register member
+export circuit registerMember(weight: Uint<128>): [] {
+  const member = left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey());
+  memberWeights.insert(disclose(member), disclose(weight));
+}
+
+// Create proposal
+export circuit createProposal(
+  recipient: Either<ZswapCoinPublicKey, ContractAddress>,
+  amount: Uint<128>,
+  deadline: Uint<64>
+): Uint<128> {
+  const member = left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey());
+  
+  // Check member is registered
+  assert(memberWeights.member(disclose(member)), "Not a registered member");
+  
+  const proposalId = nextProposalId;
+  
+  const proposal = Proposal {
+    proposalId: proposalId,
+    recipient: recipient,
+    amount: amount,
+    deadline: deadline,
+    isActive: true,
+    yesVotes: 0,
+    noVotes: 0
+  };
+  
+  proposals.insert(disclose(proposalId), disclose(proposal));
+  nextProposalId = disclose(proposalId + 1 as Uint<128>);
+  
+  // Initialize vote tracking for this proposal
+  hasVoted.insert(
+    disclose(proposalId),
+    default<Map<Either<ZswapCoinPublicKey, ContractAddress>, Boolean>>
+  );
+  
+  return proposalId;
+}
+
+// Vote on proposal - Yes vote
+export circuit voteYes(proposalId: Uint<128>): [] {
+  const voter = left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey());
+  
+  // Check member is registered
+  assert(memberWeights.member(disclose(voter)), "Not a registered member");
+  
+  // Check proposal exists
+  assert(proposals.member(disclose(proposalId)), "Proposal does not exist");
+  
+  // Check hasn't voted
+  assert(
+    !hasVoted.lookup(disclose(proposalId)).member(disclose(voter)),
+    "Already voted"
+  );
+  
+  // Get member weight
+  const weight = memberWeights.lookup(disclose(voter));
+  
+  // Update proposal votes
+  const proposal = proposals.lookup(disclose(proposalId));
+  assert(proposal.isActive, "Proposal not active");
+  
+  const updatedProposal = Proposal {
+    proposalId: proposal.proposalId,
+    recipient: proposal.recipient,
+    amount: proposal.amount,
+    deadline: proposal.deadline,
+    isActive: proposal.isActive,
+    yesVotes: proposal.yesVotes + weight as Uint<128>,
+    noVotes: proposal.noVotes
+  };
+  
+  proposals.insert(disclose(proposalId), disclose(updatedProposal));
+  
+  // Mark as voted
+  hasVoted.lookup(disclose(proposalId)).insert(disclose(voter), disclose(true));
+}
+
+// Vote on proposal - No vote
+export circuit voteNo(proposalId: Uint<128>): [] {
+  const voter = left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey());
+  
+  // Check member is registered
+  assert(memberWeights.member(disclose(voter)), "Not a registered member");
+  
+  // Check proposal exists
+  assert(proposals.member(disclose(proposalId)), "Proposal does not exist");
+  
+  // Check hasn't voted
+  assert(
+    !hasVoted.lookup(disclose(proposalId)).member(disclose(voter)),
+    "Already voted"
+  );
+  
+  // Get member weight
+  const weight = memberWeights.lookup(disclose(voter));
+  
+  // Update proposal votes
+  const proposal = proposals.lookup(disclose(proposalId));
+  assert(proposal.isActive, "Proposal not active");
+  
+  const updatedProposal = Proposal {
+    proposalId: proposal.proposalId,
+    recipient: proposal.recipient,
+    amount: proposal.amount,
+    deadline: proposal.deadline,
+    isActive: proposal.isActive,
+    yesVotes: proposal.yesVotes,
+    noVotes: proposal.noVotes + weight as Uint<128>
+  };
+  
+  proposals.insert(disclose(proposalId), disclose(updatedProposal));
+  
+  // Mark as voted
+  hasVoted.lookup(disclose(proposalId)).insert(disclose(voter), disclose(true));
+}
+
+// Execute proposal
+export circuit executeProposal(proposalId: Uint<128>): [] {
+  assert(proposals.member(disclose(proposalId)), "Proposal does not exist");
+  
+  const proposal = proposals.lookup(disclose(proposalId));
+  assert(proposal.isActive, "Proposal not active");
+  
+  // Check quorum
+  const totalVotes = proposal.yesVotes + proposal.noVotes as Uint<128>;
+  assert(totalVotes >= quorumThreshold, "Quorum not reached");
+  
+  // Check passed
+  assert(proposal.yesVotes > proposal.noVotes, "Proposal did not pass");
+  
+  // Check sufficient balance
+  assert(treasuryBalance >= proposal.amount, "Insufficient treasury balance");
+  
+  // Execute transfer
+  treasuryBalance = disclose(treasuryBalance - proposal.amount as Uint<128>);
+  
+  // Mark proposal as inactive
+  const updatedProposal = Proposal {
+    proposalId: proposal.proposalId,
+    recipient: proposal.recipient,
+    amount: proposal.amount,
+    deadline: proposal.deadline,
+    isActive: false,
+    yesVotes: proposal.yesVotes,
+    noVotes: proposal.noVotes
+  };
+  
+  proposals.insert(disclose(proposalId), disclose(updatedProposal));
+}
+
+// Get proposal details
+export circuit getProposal(proposalId: Uint<128>): Proposal {
+  assert(proposals.member(disclose(proposalId)), "Proposal does not exist");
+  return proposals.lookup(disclose(proposalId));
+}

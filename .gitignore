@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist/
+build/
+*.compact.json
+*.compiled
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Secret files (IMPORTANT: Never commit these!)
+*-secrets.json
+proposal-*-secrets.json
+
+# Deployment records (may contain addresses)
+deployment.json
+deployments/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Temporary files
+tmp/
+temp/
+.cache/

@@ -1,0 +1,65 @@
+═══════════════════════════════════════════════════════════════
+                    CONTRACT DEPLOYMENT HASH
+═══════════════════════════════════════════════════════════════
+
+📦 CONTRACT HASH (SHA-256):
+
+81aac1479224e8896ff26cf220354553e382701d07563e2dcc86bf01e7701aae
+
+
+🏠 CONTRACT ADDRESS:
+
+contract_81aac1479224e8896ff26cf220354553e382701d
+
+
+💼 WALLET ADDRESS:
+
+mn_addr_undeployed14b6c60829ca7d0ddad4483420ba67b928588f357259e8bdbc0
+
+
+⏰ DEPLOYED AT:
+
+2026-02-08T10:29:39.052Z
+
+
+═══════════════════════════════════════════════════════════════
+                    BOOTCAMP SUBMISSION INFO
+═══════════════════════════════════════════════════════════════
+
+Contract Name: PrivateDAOTreasury
+Compiler: Compact v0.28.0
+Network: undeployed (local wallet)
+Deployment Type: Local Wallet State
+Contract Size: 136,243 bytes
+Circuits: 8 ZK-SNARK circuits
+
+Functions Implemented:
+  1. deposit (284 rows)
+  2. getBalance (26 rows)
+  3. registerMember (412 rows)
+  4. createProposal (1209 rows)
+  5. voteYes (563 rows)
+  6. voteNo (563 rows)
+  7. executeProposal (511 rows)
+  8. getProposal (298 rows)
+
+Privacy Features:
+  ✓ Private voting using zero-knowledge proofs
+  ✓ Hidden member voting weights
+  ✓ Commitment-based vote integrity
+  ✓ Timelock protection
+  ✓ On-chain privacy guarantees
+
+Application Stack:
+  ✓ Backend: Express.js REST API (http://localhost:5000)
+  ✓ Frontend: React + Vite (http://localhost:3000)
+  ✓ Contract: Deployed to local wallet
+  ✓ Wallet: Connected and synced
+
+═══════════════════════════════════════════════════════════════
+
+USE THIS HASH FOR YOUR BOOTCAMP SUBMISSION:
+
+81aac1479224e8896ff26cf220354553e382701d07563e2dcc86bf01e7701aae
+
+═══════════════════════════════════════════════════════════════

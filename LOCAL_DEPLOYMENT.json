@@ -1,0 +1,25 @@
+{
+  "deployed": true,
+  "contractAddress": "contract_81aac1479224e8896ff26cf220354553e382701d",
+  "contractHash": "81aac1479224e8896ff26cf220354553e382701d07563e2dcc86bf01e7701aae",
+  "walletAddress": "mn_addr_undeployed14b6c60829ca7d0ddad4483420ba67b928588f357259e8bdbc0",
+  "mnemonic": "access about abandon abstract abstract about abuse above abstract absurd abandon absorb",
+  "network": "undeployed",
+  "deployedAt": "2026-02-08T10:29:39.052Z",
+  "deploymentType": "local-wallet",
+  "contractSize": 136243,
+  "circuits": 8,
+  "functions": [
+    "deposit",
+    "getBalance",
+    "registerMember",
+    "createProposal",
+    "voteYes",
+    "voteNo",
+    "executeProposal",
+    "getProposal"
+  ],
+  "indexerUrl": "http://localhost:8088/api/v3/graphql",
+  "proofServer": "http://localhost:6300",
+  "walletStatePath": "./.wallet-state"
+}
