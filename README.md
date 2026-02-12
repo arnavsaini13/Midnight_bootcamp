@@ -17,6 +17,7 @@
 - [Installation & Setup](#-installation--setup)
 - [Deployment Details](#-deployment-details)
 - [Usage Guide](#-usage-guide)
+- [Screenshots](#-screenshots)
 - [Future Scope](#-future-scope)
 - [Contributing](#-contributing)
 
@@ -359,7 +360,31 @@ Navigate to the **Dashboard** tab to see:
 
 ---
 
-## 🚀 Future Scope
+## 📸 Screenshots
+
+**You can view the full UI of the project in the [Website UI Images](Website%20UI%20Images/) folder.**
+
+### Dashboard
+![Dashboard](Website%20UI%20Images/Screenshot%202026-02-12%20232938.png)
+
+### Proposals
+![Proposals](Website%20UI%20Images/Screenshot%202026-02-12%20233009.png)
+
+### Leaderboard
+![Leaderboard](Website%20UI%20Images/Screenshot%202026-02-12%20233102.png)
+
+### Members
+![Members](Website%20UI%20Images/Screenshot%202026-02-12%20233146.png)
+
+### About
+![About](Website%20UI%20Images/Screenshot%202026-02-12%20233213.png)
+
+### Additional View
+![Additional View](Website%20UI%20Images/Screenshot%202026-02-12%20233246.png)
+
+---
+
+## �🚀 Future Scope
 
 ### Phase 1: Enhanced Privacy (Q2 2026)
 - [ ] **Multi-signature proposals** - Require multiple approvers
