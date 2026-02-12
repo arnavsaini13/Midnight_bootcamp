@@ -23,6 +23,12 @@
 
 ---
 
+## 🎥 Project Video
+
+**[Watch the Project Demo](https://drive.google.com/file/d/11Ds-jCyKB7EgOuOBcBcBb7i4C5-7IDmS/view?usp=sharing)**
+
+---
+
 ## 📖 Project Description
 
 **PrivateDAO Treasury** is a full-stack decentralized application that brings **privacy-first governance** to DAOs using **Midnight Protocol's zero-knowledge technology**. 
