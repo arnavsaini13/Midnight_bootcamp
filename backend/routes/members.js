@@ -5,7 +5,7 @@ const router = express.Router();
 // In-memory member storage (for demo)
 let members = [
   {
-    address: 'mn_addr_undeployed13mlltk36vafmkk4ukm0cx9yn7kknuy50wtem8c9364kf7tqlv69st5eumy',
+    address: 'mn_addr_undeployed1ec4yxmxfvqyfj23859f5dyg9zvkpw0jh7u3tu9zzrn3d89chv83q5gyqy5',
     votingWeight: 100,
     joinedAt: new Date().toISOString(),
     proposalsCreated: 1,

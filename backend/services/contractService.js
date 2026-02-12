@@ -1,4 +1,4 @@
-import { Contract } from '../../build_working/contract/index.js';
+import { Contract } from '../../contract/build_working/contract/index.js';
 import { readFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';

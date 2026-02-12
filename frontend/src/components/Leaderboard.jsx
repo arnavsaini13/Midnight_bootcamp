@@ -1,69 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Trophy, Award, TrendingUp, Users } from 'lucide-react';
-import memberAPI from '../services/api';
+import './Components.css';
+import './ModernStyles.css';
+
+const demoMembers = [
+  { address: 'mn_addr_undeployed1ec4yxmxfvqyfj23859f5dyg9zvkpw0jh7u3tu9zzrn3d89chv83q5gyqy5', votesCount: 24, proposalsCreated: 6, points: 36 },
+  { address: 'mn_addr_undeployed1xk8v2m9gf4t5h7j9k2l4n6p8q0r3s5t7u9v2w4x6y8z0a2b4c6d8e0f2g4h', votesCount: 19, proposalsCreated: 4, points: 27 },
+  { address: 'mn_addr_undeployed1ym9t3n8hg5u6i8k0m2o4q6s8u0w2y4a6c8e0g2i4k6m8o0q2s4u6w8y0a2b', votesCount: 17, proposalsCreated: 3, points: 23 },
+];
 
 const Leaderboard = () => {
-  const [members, setMembers] = useState([]);
-  const [stats, setStats] = useState({
-    mostActive: null,
-    totalVotes: 0,
-    proposalsCreated: 0
+  const [members] = useState(demoMembers);
+  const [stats] = useState({
+    mostActive: demoMembers[0].address,
+    totalVotes: demoMembers.reduce((sum, m) => sum + m.votesCount, 0),
+    proposalsCreated: demoMembers.reduce((sum, m) => sum + m.proposalsCreated, 0)
   });
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadLeaderboard();
-  }, []);
-
-  const loadLeaderboard = async () => {
-    try {
-      const res = await memberAPI.getAll();
-      const membersList = res.data.members || [];
-      
-      // Sort by voting activity
-      const sorted = membersList
-        .map(m => ({
-          ...m,
-          points: (m.votesCount || 0) * 1 + (m.proposalsCreated || 0) * 2
-        }))
-        .sort((a, b) => b.points - a.points);
-      
-      setMembers(sorted);
-      
-      // Calculate stats
-      const totalVotes = sorted.reduce((sum, m) => sum + (m.votesCount || 0), 0);
-      const proposalsCreated = sorted.reduce((sum, m) => sum + (m.proposalsCreated || 0), 0);
-      
-      setStats({
-        mostActive: sorted[0]?.address || 'N/A',
-        totalVotes,
-        proposalsCreated
-      });
-      
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to load leaderboard:', error);
-      setLoading(false);
-    }
-  };
-
-  const getMedalIcon = (index) => {
-    if (index === 0) return '🥇';
-    if (index === 1) return '🥈';
-    if (index === 2) return '🥉';
-    return `#${index + 1}`;
-  };
-
-  const getRankBadge = (index) => {
-    if (index === 0) return '1st';
-    if (index === 1) return '2nd';
-    if (index === 2) return '3rd';
-    return `${index + 1}th`;
-  };
-
-  if (loading) {
-    return <div className="loading">Loading leaderboard...</div>;
-  }
+  const truncAddr = (addr) => `${addr.substring(0, 18)}...${addr.substring(addr.length - 6)}`;
 
   return (
     <div className="leaderboard">
@@ -81,9 +35,9 @@ const Leaderboard = () => {
           <div className="stat-details">
             <h3>Most Active</h3>
             <p className="stat-value">
-              {stats.mostActive ? `${stats.mostActive.substring(0, 15)}...` : 'N/A'}
+              {`${stats.mostActive.substring(0, 15)}...`}
             </p>
-            <p className="stat-subtitle">{members[0]?.points || 0} points</p>
+            <p className="stat-subtitle">{members[0].points} points</p>
           </div>
           <div className="stat-trend up">
             <TrendingUp size={16} />
@@ -113,49 +67,50 @@ const Leaderboard = () => {
         </div>
       </div>
 
-      {/* Top Contributors */}
+      {/* Medal Podium */}
       <div className="section">
         <h2 className="section-title">Top Contributors</h2>
-        
-        <div className="contributors-list">
-          {members.slice(0, 10).map((member, index) => (
-            <div key={member.address} className={`contributor-card rank-${index + 1}`}>
-              <div className="contributor-rank">
-                <span className="rank-medal">{getMedalIcon(index)}</span>
-              </div>
-              
-              <div className="contributor-avatar">
-                {member.address.substring(0, 2).toUpperCase()}
-              </div>
-              
-              <div className="contributor-info">
-                <div className="contributor-address">
-                  {member.address.substring(0, 20)}...{member.address.substring(member.address.length - 8)}
-                </div>
-                <div className="contributor-badges">
-                  {index < 3 && (
-                    <span className={`badge badge-${getRankBadge(index).replace(/\d+/, '')}`}>
-                      {getRankBadge(index)}
-                    </span>
-                  )}
-                  <span className="contributor-stat">
-                    🗳️ {member.votesCount || 0} votes
-                  </span>
-                  <span className="contributor-stat">
-                    📋 {member.proposalsCreated || 0} proposals
-                  </span>
-                  <span className="contributor-stat">
-                    ⭐ {member.points} pts
-                  </span>
-                </div>
-              </div>
-              
-              <div className="contributor-points">
-                <div className="points-value">{member.points}</div>
-                <div className="points-label">points</div>
-              </div>
+
+        <div className="podium-container">
+          {/* 2nd Place - Left */}
+          <div className="podium-spot podium-second">
+            <div className="podium-medal">🥈</div>
+            <div className="podium-avatar" style={{ background: 'linear-gradient(135deg, #94a3b8, #cbd5e1)' }}>2</div>
+            <div className="podium-name">{truncAddr(members[1].address)}</div>
+            <div className="podium-points">{members[1].points} pts</div>
+            <div className="podium-stats-row">
+              <span>🗳️ {members[1].votesCount} votes</span>
+              <span>📋 {members[1].proposalsCreated} proposals</span>
             </div>
-          ))}
+            <div className="podium-pillar pillar-silver"></div>
+          </div>
+
+          {/* 1st Place - Center */}
+          <div className="podium-spot podium-first">
+            <div className="podium-crown">👑</div>
+            <div className="podium-medal">🥇</div>
+            <div className="podium-avatar" style={{ background: 'linear-gradient(135deg, #f59e0b, #fbbf24)' }}>1</div>
+            <div className="podium-name">{truncAddr(members[0].address)}</div>
+            <div className="podium-points">{members[0].points} pts</div>
+            <div className="podium-stats-row">
+              <span>🗳️ {members[0].votesCount} votes</span>
+              <span>📋 {members[0].proposalsCreated} proposals</span>
+            </div>
+            <div className="podium-pillar pillar-gold"></div>
+          </div>
+
+          {/* 3rd Place - Right */}
+          <div className="podium-spot podium-third">
+            <div className="podium-medal">🥉</div>
+            <div className="podium-avatar" style={{ background: 'linear-gradient(135deg, #b45309, #d97706)' }}>3</div>
+            <div className="podium-name">{truncAddr(members[2].address)}</div>
+            <div className="podium-points">{members[2].points} pts</div>
+            <div className="podium-stats-row">
+              <span>🗳️ {members[2].votesCount} votes</span>
+              <span>📋 {members[2].proposalsCreated} proposals</span>
+            </div>
+            <div className="podium-pillar pillar-bronze"></div>
+          </div>
         </div>
       </div>
 
